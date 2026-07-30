@@ -2,17 +2,18 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>러시안 홀덤</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
 
+        * { box-sizing: border-box; }
         body { font-family: 'Malgun Gothic', sans-serif; background: radial-gradient(circle at center, #1a0b0b 0%, #000000 100%); color: white; text-align: center; margin: 0; padding: 10px; user-select: none; overflow-x: hidden; transition: background 1s ease; }
         h2 { color: #ffd700; margin-bottom: 10px; font-family: 'Playfair Display', serif; font-size: 2.5rem; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); z-index: 10; position: relative; }
         
-        .table-container { position: relative; max-width: 950px; margin: 0 auto; perspective: 1200px; }
-        .table { background: radial-gradient(ellipse at center, #0f5c33 0%, #062b16 100%); border-radius: 150px; border: 30px solid #1c0e09; padding: 40px 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.9), inset 0 0 10px rgba(255,255,255,0.1); position: relative; transition: all 1s ease; z-index: 1; overflow: hidden; }
+        .table-container { position: relative; width: 100%; max-width: 950px; margin: 0 auto; perspective: 1200px; }
+        .table { background: radial-gradient(ellipse at center, #0f5c33 0%, #062b16 100%); border-radius: 150px; border: 30px solid #1c0e09; padding: 40px 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.9), inset 0 0 10px rgba(255,255,255,0.1); position: relative; transition: all 1s ease; z-index: 1; overflow: hidden; width: 100%; }
         .table.execution-mode { filter: brightness(0.4) sepia(0.5) hue-rotate(-30deg); box-shadow: inset 0 0 150px #000; }
 
         .avatar-wrap { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 5; pointer-events: none; }
@@ -28,39 +29,38 @@
         .ai-wrap .hand.acting { transform: translateY(40px) scale(1.1); }
         .player-wrap .hand.acting { transform: translateY(-40px) scale(1.1); }
 
-        .cards-area { display: flex; justify-content: center; gap: 15px; margin: 5px 0; min-height: 105px; z-index: 10; position: relative; }
+        .cards-area { display: flex; justify-content: center; gap: 10px; margin: 5px 0; min-height: 105px; z-index: 10; position: relative; flex-wrap: wrap; }
         .card { background: #fff; border-radius: 8px; width: 75px; height: 105px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; box-shadow: 3px 5px 15px rgba(0,0,0,0.6); border: 1px solid #ccc; animation: dealCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateY(-50px) rotateY(180deg) scale(0.5); }
         @keyframes dealCard { to { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); } }
         .card.hidden { background: repeating-linear-gradient(45deg, #7b1313, #7b1313 10px, #9b1919 10px, #9b1919 20px); border: 2px solid #fff; color: transparent; box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 3px 5px 15px rgba(0,0,0,0.6); }
         .red { color: #d32f2f; } .black { color: #111; }
         
-        .info-panel { padding: 15px; border-radius: 15px; margin-bottom: 5px; position: relative; z-index: 10; }
+        .info-panel { padding: 10px; border-radius: 15px; margin-bottom: 5px; position: relative; z-index: 10; }
         
         /* 칩 강조 스타일 */
         .chip-display { font-family: 'Russo One', sans-serif; font-size: 1.8rem; color: #ffd700; text-shadow: 0 2px 5px #000; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px; border: 2px solid #554a10; display: inline-block; margin-bottom: 5px; }
         
         .pot-area { font-size: 35px; font-family: 'Russo One', sans-serif; color: #ffd700; margin: 10px 0; text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 5px 5px #000; background: rgba(0,0,0,0.7); display: inline-block; padding: 10px 40px; border-radius: 50px; border: 2px solid #554a10; z-index: 10; position: relative; }
-        .status-msg { font-size: 1.3rem; color: #4fc3f7; font-weight: bold; height: 30px; margin-bottom: 15px; text-shadow: 0 2px 4px #000; position: relative; z-index: 10; }
+        .status-msg { font-size: 1.3rem; color: #4fc3f7; font-weight: bold; min-height: 30px; margin-bottom: 15px; text-shadow: 0 2px 4px #000; position: relative; z-index: 10; word-break: keep-all; }
         
-        .controls { margin-top: 20px; display: none; position: relative; z-index: 10; }
-        button { padding: 12px 25px; font-size: 18px; margin: 0 8px; cursor: pointer; background: linear-gradient(180deg, #444, #222); color: white; border: 2px solid #111; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2); transition: all 0.1s; }
+        .controls { margin-top: 20px; display: none; position: relative; z-index: 10; width: 100%; }
+        .controls-inner { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 500px; margin: 0 auto; }
+        button { padding: 12px 20px; font-size: 16px; cursor: pointer; background: linear-gradient(180deg, #444, #222); color: white; border: 2px solid #111; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2); transition: all 0.1s; }
         button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
         button:disabled { opacity: 0.3; cursor: not-allowed; }
         #btn-call { background: linear-gradient(180deg, #1976d2, #0d47a1); border-color: #0d47a1; } #btn-raise { background: linear-gradient(180deg, #f57c00, #e65100); border-color: #e65100; } #btn-fold { background: linear-gradient(180deg, #d32f2f, #b71c1c); border-color: #b71c1c; }
-        #btn-next { background: linear-gradient(180deg, #388e3c, #1b5e20); border-color: #1b5e20; padding: 20px 50px; font-size: 22px; margin-top: 20px; display: inline-block; border-radius: 50px; text-transform: uppercase; animation: pulse 1.5s infinite; }
+        #btn-next { background: linear-gradient(180deg, #388e3c, #1b5e20); border-color: #1b5e20; padding: 18px 40px; font-size: 20px; margin-top: 20px; display: inline-block; border-radius: 50px; text-transform: uppercase; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(56, 142, 60, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(56, 142, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(56, 142, 60, 0); } }
-        input[type="number"] { padding: 12px; font-size: 18px; width: 120px; border-radius: 8px; border: 2px solid #555; background: #222; color: #ffd700; text-align: center; font-family: 'Russo One', sans-serif; vertical-align: top; }
+        input[type="number"] { padding: 12px; font-size: 16px; width: 100px; border-radius: 8px; border: 2px solid #555; background: #222; color: #ffd700; text-align: center; font-family: 'Russo One', sans-serif; }
         
-        .action-popup { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: 'Russo One', sans-serif; font-size: 3.5rem; font-weight: 900; text-transform: uppercase; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 30px currentColor; pointer-events: none; z-index: 100; animation: popAction 1.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; }
+        .action-popup { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: 'Russo One', sans-serif; font-size: 3.5rem; font-weight: 900; text-transform: uppercase; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 30px currentColor; pointer-events: none; z-index: 100; animation: popAction 1.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; width: 100%; }
         @keyframes popAction { 0% { opacity: 0; transform: translate(-50%, -10px) scale(0.3); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(0.8); } }
 
-        #log { background: rgba(0,0,0,0.85); color: #ddd; height: 160px; overflow-y: auto; text-align: left; padding: 15px; border-radius: 10px; margin-top: 30px; font-family: monospace; max-width: 950px; margin-left: auto; margin-right: auto; border: 2px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative; z-index: 10;}
+        #log { background: rgba(0,0,0,0.85); color: #ddd; height: 160px; overflow-y: auto; text-align: left; padding: 15px; border-radius: 10px; margin-top: 30px; font-family: monospace; max-width: 950px; width: 100%; margin-left: auto; margin-right: auto; border: 2px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative; z-index: 10;}
         .log-ai { color: #ff9800; } .log-player { color: #29b6f6; } .log-sys { color: #81c784; } .log-death { color: #d32f2f; font-weight: bold; }
 
-        /* 베팅 칩 애니메이션 */
         .moving-chip { position: fixed; width: 35px; height: 35px; background: radial-gradient(circle, #ffd700, #b8860b); border: 4px dashed #fff; border-radius: 50%; box-shadow: 0 5px 10px rgba(0,0,0,0.5); z-index: 1000; transition: all 0.5s ease-out; pointer-events: none; }
 
-        /* 처형 모드 UI */
         .gun-wrapper { display: none; position: absolute; left: 50%; top: 50%; width: 60px; height: 180px; margin-left: -30px; margin-top: -90px; z-index: 50; transition: transform 1s ease; pointer-events: none; }
         .gun-body { width: 30px; height: 120px; background: linear-gradient(90deg, #444, #777, #444); position: absolute; bottom: 0; left: 15px; border-radius: 5px; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
         .gun-barrel { width: 14px; height: 90px; background: linear-gradient(90deg, #222, #555, #222); position: absolute; bottom: 110px; left: 23px; border-radius: 3px; border-top: 3px solid #111; }
@@ -73,19 +73,60 @@
         .splatter-anim { display: block; animation: splatter 3s forwards; }
         @keyframes splatter { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.1); } 10% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.3); } }
 
-        #execution-ui { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-        .execution-title { font-family: 'Russo One', sans-serif; font-size: 5rem; color: #d32f2f; text-shadow: 0 0 30px red, 0 0 10px #000; margin-bottom: 10px; letter-spacing: 5px; animation: heartbeat 1s infinite alternate; }
+        #execution-ui { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; padding: 20px; text-align: center; }
+        .execution-title { font-family: 'Russo One', sans-serif; font-size: 4rem; color: #d32f2f; text-shadow: 0 0 30px red, 0 0 10px #000; margin-bottom: 10px; letter-spacing: 5px; animation: heartbeat 1s infinite alternate; }
         @keyframes heartbeat { from { transform: scale(1); } to { transform: scale(1.05); } }
-        .cylinder-display { display: flex; gap: 15px; margin: 30px 0; }
-        .chamber { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #777; background: #222; box-shadow: 0 5px 10px #000;}
+        .cylinder-display { display: flex; gap: 10px; margin: 30px 0; }
+        .chamber { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #777; background: #222; box-shadow: 0 5px 10px #000;}
         .chamber.spent { background: #550000; border-color: #d32f2f; position: relative; }
         .chamber.spent::after { content: 'X'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d32f2f; font-weight: bold; font-size: 1.5rem; }
-        .prob-text { font-size: 2.5rem; color: #fff; margin-bottom: 40px; text-shadow: 0 2px 5px #000; }
-        #btn-trigger { pointer-events: auto; background: #d32f2f; border: 3px solid #ff0000; padding: 20px 80px; font-size: 2.5rem; box-shadow: 0 0 30px rgba(255,0,0,0.8); cursor: crosshair; border-radius: 15px; }
+        .prob-text { font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px #000; }
+        #btn-trigger { pointer-events: auto; background: #d32f2f; border: 3px solid #ff0000; padding: 15px 40px; font-size: 1.8rem; box-shadow: 0 0 30px rgba(255,0,0,0.8); cursor: crosshair; border-radius: 15px; width: 90%; max-width: 400px; }
         #btn-trigger:hover { filter: brightness(1.5); box-shadow: 0 0 60px rgba(255,0,0,1); transform: scale(1.05); }
 
         .red-flash { animation: flashRed 1.5s forwards; }
         @keyframes flashRed { 0% { background-color: #ff0000; filter: contrast(200%) brightness(200%); } 100% { background-color: #000000; filter: contrast(100%) brightness(100%); } }
+
+        /* ================= 반응형 미디어 쿼리 ================= */
+        @media screen and (max-width: 768px) {
+            h2 { font-size: 2rem; margin-bottom: 5px; }
+            .table { border-width: 15px; border-radius: 60px; padding: 30px 10px; }
+            .shoulders { width: 100px; height: 40px; }
+            .head { width: 50px; height: 50px; top: -10px; }
+            .hands-container { width: 130px; }
+            .hand { width: 28px; height: 40px; }
+            .ai-wrap .hand.acting { transform: translateY(25px) scale(1.1); }
+            .player-wrap .hand.acting { transform: translateY(-25px) scale(1.1); }
+
+            .card { width: 55px; height: 80px; font-size: 22px; }
+            .cards-area { min-height: 80px; gap: 6px; }
+            .chip-display { font-size: 1.4rem; padding: 4px 12px; }
+            .pot-area { font-size: 24px; padding: 8px 25px; margin: 5px 0; }
+            .status-msg { font-size: 1.1rem; }
+            .action-popup { font-size: 2.5rem; }
+            
+            button { padding: 10px 14px; font-size: 14px; }
+            input[type="number"] { width: 80px; padding: 10px; font-size: 14px; }
+            #btn-next { font-size: 18px; padding: 14px 30px; }
+            
+            .execution-title { font-size: 2.8rem; }
+            .prob-text { font-size: 1.5rem; }
+            #btn-trigger { font-size: 1.4rem; padding: 12px 20px; }
+        }
+
+        @media screen and (max-width: 480px) {
+            body { padding: 5px; }
+            .table { border-width: 10px; border-radius: 40px; padding: 25px 5px; }
+            .card { width: 45px; height: 68px; font-size: 18px; border-radius: 4px; }
+            .cards-area { min-height: 70px; gap: 4px; }
+            .pot-area { font-size: 20px; padding: 6px 18px; }
+            
+            /* 소형 모바일 컨트롤 영역 줄바꿈 최적화 */
+            .controls-inner { flex-direction: row; gap: 5px; }
+            .controls-inner > button { flex: 1 1 40%; }
+            .controls-inner > input[type="number"] { flex: 1 1 35%; }
+            #btn-raise { flex: 1 1 50%; }
+        }
     </style>
 </head>
 <body>
@@ -106,9 +147,9 @@
         </div>
 
         <div class="info-panel" id="ai-panel">
-            <h3 style="margin:0 0 5px 0; color:#ff9800; font-size:1.5rem;">🤖 AI Bot</h3>
+            <h3 style="margin:0 0 5px 0; color:#ff9800; font-size:1.3rem;">🤖 AI Bot</h3>
             <div class="chip-display">Chips: $<span id="ai-chips">500</span></div>
-            <div style="color: #bbb; font-size: 1rem; font-weight: bold;">Bet: $<span id="ai-bet">0</span></div>
+            <div style="color: #bbb; font-size: 0.9rem; font-weight: bold;">Bet: $<span id="ai-bet">0</span></div>
             <div class="cards-area" id="ai-cards"></div>
         </div>
 
@@ -121,9 +162,9 @@
 
         <div class="info-panel" id="player-panel">
             <div class="cards-area" id="player-cards"></div>
-            <div style="color: #bbb; font-size: 1rem; font-weight: bold;">Bet: $<span id="player-bet">0</span></div>
+            <div style="color: #bbb; font-size: 0.9rem; font-weight: bold;">Bet: $<span id="player-bet">0</span></div>
             <div class="chip-display">Chips: $<span id="player-chips">500</span></div>
-            <h3 style="margin:5px 0 0 0; color:#29b6f6; font-size:1.5rem;">🧑 Player</h3>
+            <h3 style="margin:5px 0 0 0; color:#29b6f6; font-size:1.3rem;">🧑 Player</h3>
         </div>
 
         <div class="avatar-wrap player-wrap" id="player-avatar">
@@ -147,10 +188,12 @@
         <div class="blood-splatter bottom" id="blood-player" style="top: 90%;"></div>
 
         <div class="controls" id="controls">
-            <button id="btn-fold" onclick="playerAction('fold')">FOLD</button>
-            <button id="btn-call" onclick="playerAction('call')">CHECK/CALL</button>
-            <input type="number" id="raise-amount" value="50" step="10">
-            <button id="btn-raise" onclick="playerAction('raise')">RAISE</button>
+            <div class="controls-inner">
+                <button id="btn-fold" onclick="playerAction('fold')">FOLD</button>
+                <button id="btn-call" onclick="playerAction('call')">CHECK/CALL</button>
+                <input type="number" id="raise-amount" value="50" step="10">
+                <button id="btn-raise" onclick="playerAction('raise')">RAISE</button>
+            </div>
         </div>
         
         <button id="btn-next" onclick="startHand()">게임 시작</button>
@@ -161,7 +204,7 @@
 
 <div id="execution-ui">
     <div class="execution-title">EXECUTION</div>
-    <div style="color: #ddd; font-size: 1.5rem; font-weight:bold; margin-bottom: 20px;" id="exec-target-msg">패자를 향해 총구가 돌아갑니다.</div>
+    <div style="color: #ddd; font-size: 1.2rem; font-weight:bold; margin-bottom: 20px;" id="exec-target-msg">패자를 향해 총구가 돌아갑니다.</div>
     <div class="cylinder-display" id="cylinder-ui"></div>
     <div class="prob-text" id="prob-ui">사형 확률: 16.7% (1/6)</div>
     <button id="btn-trigger" onclick="pullTrigger()">격발 (PULL TRIGGER)</button>
@@ -293,7 +336,6 @@
         aiPersonality.bluff = selected.bluff;
         aiPersonality.fear = selected.fear;
         aiPersonality.type = selected.name;
-        // 성격은 플레이어가 알 수 없도록 숨김 처리
     }
 
     function recordPlayerAction(action) {
@@ -489,7 +531,6 @@
             else weights = { fold: 85, call: 15, raise: 0 };
         }
 
-        // [신규 추가] 성격 시스템 기반 베팅 30% 영향력 주입
         let traitWeights = { fold: 0, check: 0, call: 0, raise: 0 };
         let pType = aiPersonality.type;
         
@@ -509,7 +550,6 @@
             else if (pType === 'Calling Station') traitWeights = { fold: 0, call: 100, raise: 0 }; 
         }
 
-        // 70%는 기존 상황별 논리 점수 기반, 30%는 성격 강제 부여로 혼합
         for (let action in weights) {
             weights[action] = (weights[action] * 0.7) + (traitWeights[action] * 0.3);
         }

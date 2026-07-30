@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <!-- 반응형 웹의 핵심: 뷰포트 메타 태그 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>최준표 | 피지컬 AI 업계를 선도할 인재</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +30,10 @@
             font-family: 'Pretendard', sans-serif;
         }
 
+        html {
+            scroll-behavior: smooth; /* 부드러운 스크롤 이동 */
+        }
+
         body {
             background-color: var(--bg-primary);
             color: var(--text-main);
@@ -47,7 +52,7 @@
             backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
         }
 
         .logo {
@@ -55,10 +60,17 @@
             font-size: 1.4rem;
             color: var(--text-main);
             letter-spacing: -0.5px;
+            text-decoration: none;
         }
 
         .logo span {
             color: var(--accent-primary);
+        }
+
+        /* 데스크톱 네비게이션 */
+        nav {
+            display: flex;
+            align-items: center;
         }
 
         nav a {
@@ -74,6 +86,38 @@
             color: var(--accent-primary);
         }
 
+        /* 모바일 햄버거 메뉴 버튼 */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-main);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        /* 햄버거 메뉴 오픈 상태 스타일 (X 형태) */
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
         /* 히어로 섹션 */
         .hero {
             min-height: 75vh;
@@ -82,7 +126,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0 20px;
+            padding: 60px 20px;
             background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
         }
 
@@ -122,6 +166,8 @@
         .btn-group {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .btn {
@@ -133,6 +179,9 @@
             cursor: pointer;
             border: none;
             font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-primary {
@@ -200,6 +249,9 @@
             padding: 32px;
             transition: all 0.3s ease;
             box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .exp-card:hover {
@@ -231,12 +283,13 @@
             border-radius: 6px;
             font-weight: 600;
             border: 1px solid #e0f2fe;
+            align-self: flex-start;
         }
 
         /* 웹 프로젝트 포트폴리오 */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
         }
 
@@ -319,15 +372,18 @@
             border: 1px solid var(--border-color);
             padding: 12px 28px;
             border-radius: 50px;
-            margin-top: 10px;
+            margin-top: 15px;
             margin-bottom: 30px;
             box-shadow: var(--card-shadow);
+            max-width: 100%;
+            word-break: break-all;
         }
 
         .email-box span {
             font-size: 0.95rem;
             color: var(--text-muted);
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .email-box a {
@@ -347,18 +403,137 @@
             font-size: 0.85rem;
         }
 
+        /* ========================================================
+           [반응형 미디어 쿼리 설정 - 태블릿 / 모바일 최적화]
+           ======================================================== */
+
+        /* 태블릿 (992px 이하) */
+        @media (max-width: 992px) {
+            header {
+                padding: 18px 5%;
+            }
+            section {
+                padding: 70px 6%;
+            }
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            .hero p {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* 모바일 및 소형 태블릿 (768px 이하) */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.4rem; }
-            header { padding: 15px 5%; }
-            section { padding: 60px 5%; }
+            header {
+                padding: 15px 5%;
+            }
+
+            /* 모바일 햄버거 메뉴 전환 */
+            .menu-toggle {
+                display: flex;
+            }
+
+            nav {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 75%;
+                max-width: 300px;
+                height: 100vh;
+                background-color: var(--bg-primary);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                padding-top: 80px;
+                transition: right 0.3s ease;
+                align-items: flex-start;
+            }
+
+            /* 메뉴 활성화 상태 (슬라이드 인) */
+            nav.active {
+                right: 0;
+            }
+
+            nav a {
+                margin: 0;
+                padding: 15px 30px;
+                width: 100%;
+                font-size: 1.1rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            /* 히어로 영역 최적화 */
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+                margin-bottom: 30px;
+            }
+
+            .btn-group {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                max-width: 320px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            /* 카드 1열 그리드 적용 */
+            .experience-grid,
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 35px;
+            }
+
+            /* 연락처 영역 축소 */
+            .email-box {
+                flex-direction: column;
+                gap: 5px;
+                padding: 14px 20px;
+                border-radius: 16px;
+            }
+        }
+
+        /* 소형 모바일 (480px 이하) */
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .badge {
+                font-size: 0.75rem;
+                padding: 5px 12px;
+            }
+            .exp-card, .project-info {
+                padding: 24px;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">CHOI JUN PYO<span>.</span></div>
-        <nav>
+        <a href="#about" class="logo">CHOI JUN PYO<span>.</span></a>
+        <!-- 모바일 햄버거 버튼 -->
+        <button class="menu-toggle" aria-label="메뉴 열기">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <!-- 네비게이션 메뉴 -->
+        <nav id="navbar">
             <a href="#about">About</a>
             <a href="#experience">AI & Robotics</a>
             <a href="#projects">Web Projects</a>
@@ -388,18 +563,24 @@
         <h2 class="section-title">Physical AI & Robotics Experience</h2>
         <div class="experience-grid">
             <div class="exp-card">
-                <h3>🤖 로봇 모션 제작 경험</h3>
-                <p>로봇의 관절 제어 및 동역학적 특성을 이해하고, 실제 환경에서 매끄럽고 정교하게 움직이는 맞춤형 로봇 모션을 직접 설계 및 구현했습니다.</p>
+                <div>
+                    <h3>🤖 로봇 모션 제작 경험</h3>
+                    <p>로봇의 관절 제어 및 동역학적 특성을 이해하고, 실제 환경에서 매끄럽고 정교하게 움직이는 맞춤형 로봇 모션을 직접 설계 및 구현했습니다.</p>
+                </div>
                 <span class="exp-tag">#Robotics #Motion Control</span>
             </div>
             <div class="exp-card">
-                <h3>🎨 AI 카메라 색상 추적 활동</h3>
-                <p>AI 카메라 모듈의 컴퓨터 비전(Color Tracking)을 활용하여, 피사체의 특정 색상 데이터를 실시간으로 인식하고 타겟을 정밀하게 따라가는 주행 로봇을 구현했습니다.</p>
+                <div>
+                    <h3>🎨 AI 카메라 색상 추적 활동</h3>
+                    <p>AI 카메라 모듈의 컴퓨터 비전(Color Tracking)을 활용하여, 피사체의 특정 색상 데이터를 실시간으로 인식하고 타겟을 정밀하게 따라가는 주행 로봇을 구현했습니다.</p>
+                </div>
                 <span class="exp-tag">#AI Camera #Computer Vision</span>
             </div>
             <div class="exp-card">
-                <h3>🛣️ 바닥 라인 트레이싱 활동</h3>
-                <p>바닥에 그려진 경로와 선을 비전 센서 및 카메라 데이터로 인식하여, 편차를 보정하고 오차 없이 자율적으로 길을 따라 주행하는 알고리즘을 실증했습니다.</p>
+                <div>
+                    <h3>🛣️ 바닥 라인 트레이싱 활동</h3>
+                    <p>바닥에 그려진 경로와 선을 비전 센서 및 카메라 데이터로 인식하여, 편차를 보정하고 오차 없이 자율적으로 길을 따라 주행하는 알고리즘을 실증했습니다.</p>
+                </div>
                 <span class="exp-tag">#Line Tracing #Autonomous</span>
             </div>
         </div>
@@ -464,5 +645,27 @@
         </p>
     </footer>
 
+    <!-- 모바일 메뉴 제어용 자바스크립트 -->
+    <script>
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navbar = document.querySelector('#navbar');
+        const navLinks = document.querySelectorAll('nav a');
+
+        // 버튼 클릭 시 햄버거 아이콘 변경 및 사이드 메뉴 토글
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navbar.classList.toggle('active');
+        });
+
+        // 모바일에서 메뉴 항목을 클릭했을 때 메뉴 창 자동으로 닫기
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (navbar.classList.contains('active')) {
+                    navbar.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
