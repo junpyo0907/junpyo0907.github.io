@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최준표 | 피지컬 AI 업계를 선도할 인재</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 깔끔한 화이트/라이트 테마 컬러 팔레트 */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --accent-primary: #0284c7; /* 차분하고 전문적인 블루 */
+            --accent-secondary: #0ea5e9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --card-hover-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* 공통 헤더 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--accent-primary);
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--accent-primary);
+        }
+
+        /* 히어로 섹션 */
+        .hero {
+            min-height: 75vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .badge {
+            background: #e0f2fe;
+            color: var(--accent-primary);
+            border: 1px solid #bae6fd;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            word-break: keep-all;
+            color: var(--text-main);
+        }
+
+        .hero h1 span {
+            color: var(--accent-primary);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin-bottom: 40px;
+            word-break: keep-all;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #0369a1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-outline {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+            background: var(--bg-secondary);
+        }
+
+        /* 섹션 공통 */
+        section {
+            padding: 90px 8%;
+        }
+
+        section:nth-of-type(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 50px;
+            position: relative;
+            color: var(--text-main);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -12px;
+            width: 40px;
+            height: 4px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        /* 물리적 AI 활동 경험 */
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .exp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .exp-card:hover {
+            transform: translateY(-5px);
+            border-color: #cbd5e1;
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .exp-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .exp-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .exp-tag {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            background: #f0f9ff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid #e0f2fe;
+        }
+
+        /* 웹 프로젝트 포트폴리오 */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #cbd5e1;
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .project-info {
+            padding: 32px;
+        }
+
+        .project-category {
+            color: var(--accent-primary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .project-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* 웹페이지로 이동하는 링크 버튼 */
+        .project-link {
+            display: block;
+            text-align: center;
+            background: var(--bg-secondary);
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 16px;
+            font-weight: 700;
+            border-top: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .project-link:hover {
+            background: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        /* 연락처 및 푸터 */
+        footer {
+            background: #f8fafc;
+            padding: 60px 8% 40px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .email-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 12px 28px;
+            border-radius: 50px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .email-box span {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .email-box a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: color 0.2s;
+        }
+
+        .email-box a:hover {
+            color: var(--accent-primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.4rem; }
+            header { padding: 15px 5%; }
+            section { padding: 60px 5%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">CHOI JUN PYO<span>.</span></div>
+        <nav>
+            <a href="#about">About</a>
+            <a href="#experience">AI & Robotics</a>
+            <a href="#projects">Web Projects</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <!-- 1. 히어로 섹션 -->
+    <div class="hero" id="about">
+        <div class="badge">ONYANG HIGH SCHOOL &middot; PHYSICAL AI</div>
+        <h1>
+            <span>피지컬 AI</span> 업계를 선도할 인재,<br>
+            최준표입니다.
+        </h1>
+        <p>
+            로봇 공학과 인공지능 시각 제어 기술을 탐구합니다.<br>
+            하드웨어의 움직임과 소프트웨어의 지능을 하나로 연결하는 개발자를 꿈꿉니다.
+        </p>
+        <div class="btn-group">
+            <a href="#projects" class="btn btn-primary">프로젝트 보러가기</a>
+            <a href="#contact" class="btn btn-outline">이메일 연락하기</a>
+        </div>
+    </div>
+
+    <!-- 2. 피지컬 AI & 로보틱스 활동 경험 -->
+    <section id="experience">
+        <h2 class="section-title">Physical AI & Robotics Experience</h2>
+        <div class="experience-grid">
+            <div class="exp-card">
+                <h3>🤖 로봇 모션 제작 경험</h3>
+                <p>로봇의 관절 제어 및 동역학적 특성을 이해하고, 실제 환경에서 매끄럽고 정교하게 움직이는 맞춤형 로봇 모션을 직접 설계 및 구현했습니다.</p>
+                <span class="exp-tag">#Robotics #Motion Control</span>
+            </div>
+            <div class="exp-card">
+                <h3>🎨 AI 카메라 색상 추적 활동</h3>
+                <p>AI 카메라 모듈의 컴퓨터 비전(Color Tracking)을 활용하여, 피사체의 특정 색상 데이터를 실시간으로 인식하고 타겟을 정밀하게 따라가는 주행 로봇을 구현했습니다.</p>
+                <span class="exp-tag">#AI Camera #Computer Vision</span>
+            </div>
+            <div class="exp-card">
+                <h3>🛣️ 바닥 라인 트레이싱 활동</h3>
+                <p>바닥에 그려진 경로와 선을 비전 센서 및 카메라 데이터로 인식하여, 편차를 보정하고 오차 없이 자율적으로 길을 따라 주행하는 알고리즘을 실증했습니다.</p>
+                <span class="exp-tag">#Line Tracing #Autonomous</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 웹 프로젝트 포트폴리오 -->
+    <section id="projects">
+        <h2 class="section-title">Web Portfolio Projects</h2>
+        <div class="projects-grid">
+            
+            <!-- 프로젝트 1: 러시안 홀덤 -->
+            <div class="project-card">
+                <div class="project-info">
+                    <div class="project-category">AI Simulation Game</div>
+                    <h3 class="project-title">러시안 홀덤 (Russian Hold'em)</h3>
+                    <p class="project-desc">텍사스 홀덤의 치열한 심리전과 러시안 룰렛의 극한의 긴장감을 결합하여, AI 알고리즘과의 긴박한 수싸움을 구현한 웹 게임 애플리케이션입니다.</p>
+                </div>
+                <!-- 💡 '러시안 홀덤.html' 파일로 연결 -->
+                <a class="project-link" href="러시안 홀덤.html" target="_blank" rel="noopener noreferrer">
+                    프로젝트 웹사이트 방문하기 &rarr;
+                </a>
+            </div>
+
+            <!-- 프로젝트 2: 웹 개발 기초 가이드 -->
+            <div class="project-card">
+                <div class="project-info">
+                    <div class="project-category">Web UI/UX Guide</div>
+                    <h3 class="project-title">웹 프론트엔드 마스터 가이드</h3>
+                    <p class="project-desc">HTML 시맨틱 태그부터 CSS Flexbox, 인터랙티브 JS 동작까지 학습 결과를 담아낸 가이드 웹페이지입니다.</p>
+                </div>
+                <!-- 💡 '21027 최준표 웹 개발 기초 가이드.html' 파일로 연결 -->
+                <a class="project-link" href="21027 최준표 웹 개발 기초 가이드.html" target="_blank" rel="noopener noreferrer">
+                    프로젝트 웹사이트 방문하기 &rarr;
+                </a>
+            </div>
+
+            <!-- 프로젝트 3: 학습 도우미 -->
+            <div class="project-card">
+                <div class="project-info">
+                    <div class="project-category">Productivity App</div>
+                    <h3 class="project-title">My Study Space (학습 플래너)</h3>
+                    <p class="project-desc">글래스모피즘 디자인과 과목별 룰렛, 타이머 기능을 갖춘 사용자 몰입형 스터디 관리 플래너입니다.</p>
+                </div>
+                <!-- 💡 '최준표 학습관리웹' 폴더 안의 'index.html' 파일로 연결 -->
+                <a class="project-link" href="최준표 학습관리웹/index.html" target="_blank" rel="noopener noreferrer">
+                    프로젝트 웹사이트 방문하기 &rarr;
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 4. 연락처 및 메일 링크 -->
+    <footer id="contact">
+        <p style="color: var(--text-muted); font-weight: 600;">온양고등학교 최준표 | Physical AI & Robotics Developer</p>
+        <div class="email-box">
+            <span>📧 EMAIL :</span>
+            <a href="mailto:ongo2510128@g.cnees.kr">ongo2510128@g.cnees.kr</a>
+        </div>
+        <p class="copyright">
+            &copy; 2026 CHOI JUN PYO. All rights reserved.
+        </p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹 프론트엔드 마스터 가이드</title>
+    <style>
+        /* =========================================
+           전체 페이지 및 레이아웃 기본 설정 
+           ========================================= */
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 40px;
+        }
+        h1.main-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #2c3e50;
+        }
+        h2.section-title {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 60px;
+            color: #2980b9;
+            display: inline-block;
+        }
+
+        /* 공통 카드 스타일 */
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* 설명 영역 */
+        .explanation {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .explanation h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .badge {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        /* 코드 & 결과 반반 배치 (Flexbox) */
+        .demo-container {
+            display: flex;
+            gap: 20px;
+        }
+        .code-box, .result-box {
+            flex: 1;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        /* 왼쪽 예시 코드 창 */
+        .code-box {
+            background-color: #282c34;
+            color: #abb2bf;
+            overflow-x: auto;
+        }
+        .code-box pre {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.5;
+            font-family: Consolas, monospace;
+        }
+        
+        /* 오른쪽 결과 창 */
+        .result-box {
+            background-color: #ffffff;
+            border: 2px dashed #bdc3c7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; /* 가운데 정렬 */
+        }
+        .result-box.left-align {
+            align-items: flex-start; /* 왼쪽 정렬이 필요한 경우 */
+        }
+        .box-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            align-self: flex-start;
+            width: 100%;
+        }
+
+        /* =========================================
+           각종 결과 화면 전용 디자인 
+           ========================================= */
+           
+        /* HTML 시맨틱 태그용 */
+        .semantic-demo { width: 100%; text-align: center; }
+        .semantic-demo header { background-color: #ffcccc; padding: 10px; margin-bottom: 5px; border: 1px solid #ff9999; }
+        .semantic-demo main { background-color: #ccffcc; padding: 30px 10px; margin-bottom: 5px; border: 1px solid #99ff99; }
+        .semantic-demo footer { background-color: #ccccff; padding: 10px; border: 1px solid #9999ff; }
+
+        /* 화려한 리스트 스타일 (Hover 제거됨) */
+        .fancy-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            max-width: 250px;
+        }
+        .fancy-list li {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: white;
+            margin-bottom: 10px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .fancy-list li::before { content: "✨ "; }
+
+        /* 마우스 오버 버튼 */
+        .hover-btn {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .hover-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 15px rgba(155, 89, 182, 0.4);
+        }
+
+        /* CSS Flexbox 레이아웃 */
+        .flex-container {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+        }
+        .flex-box {
+            background-color: #34495e;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+        }
+
+        /* 다크모드 박스 */
+        .theme-box {
+            width: 90%;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            background-color: #f1f2f6;
+            color: #2f3542;
+            transition: all 0.5s ease;
+        }
+        .theme-box.dark { background-color: #2f3542; color: #f1f2f6; }
+
+        /* 카운터 버튼 */
+        .counter-btn { padding: 8px 15px; font-size: 16px; cursor: pointer; margin: 0 5px; }
+    </style>
+</head>
+<body>
+
+    <h1 class="main-title">🚀 웹 개발 기초 가이드 (HTML + CSS + JS)</h1>
+
+    <!-- ==========================================
+         1. HTML 섹션 (원본 내용 유지)
+         ========================================== -->
+    <h2 class="section-title">🏗️ 1. HTML: 웹페이지의 뼈대</h2>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>① 제목 & 문단 (h1~h6, p)</h3>
+            <p>글자가 작을수록 더 큰 제목을 의미하며(h1이 가장 큼), 일반적인 줄글이나 문단은 <code>&lt;p&gt;</code> 태그를 사용합니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>&lt;h1&gt;제일 큰 제목&lt;/h1&gt;
+&lt;h2&gt;두 번째 제목&lt;/h2&gt;
+&lt;p&gt;이것은 일반적인 문단입니다.&lt;/p&gt;</code></pre>
+            </div>
+            <div class="result-box left-align">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <h1 style="margin:0;">제일 큰 제목</h1>
+                <h2 style="margin:5px 0;">두 번째 제목</h2>
+                <p style="margin:0;">이것은 일반적인 문단입니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>② 링크 & 이미지 (a, img)</h3>
+            <p><code>&lt;a&gt;</code>는 클릭하면 이동하는 링크, <code>&lt;img&gt;</code>는 이미지를 보여줍니다. <code>alt</code>는 이미지가 안 보일 때 대신 띄워줄 글자입니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>&lt;a href="https://google.com"&gt;구글로 이동&lt;/a&gt;
+&lt;br&gt;
+&lt;img src="https://via.placeholder.com/100" 
+     alt="샘플 이미지"&gt;</code></pre>
+            </div>
+            <div class="result-box left-align">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <a href="#" style="margin-bottom:10px; display:inline-block;">구글로 이동</a><br>
+                <img src="https://via.placeholder.com/100" alt="샘플 이미지">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>③ 목록 & 표 (ul/li, table)</h3>
+            <p>순서가 없는 기본 목록은 <code>&lt;ul&gt;</code>과 <code>&lt;li&gt;</code>를 씁니다. 표는 <code>&lt;table&gt;</code> 안에 가로줄 <code>&lt;tr&gt;</code>, 칸 <code>&lt;td&gt;</code>를 넣습니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>&lt;ul&gt;
+  &lt;li&gt;사과&lt;/li&gt;
+  &lt;li&gt;바나나&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table border="1"&gt;
+  &lt;tr&gt;
+    &lt;td&gt;1번 칸&lt;/td&gt;&lt;td&gt;2번 칸&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+            </div>
+            <div class="result-box left-align">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <ul style="margin-top:0;">
+                    <li>사과</li>
+                    <li>바나나</li>
+                </ul>
+                <table border="1" style="border-collapse: collapse; text-align: center;">
+                    <tr><td style="padding: 5px 10px;">1번 칸</td><td style="padding: 5px 10px;">2번 칸</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>④ 버튼 & 입력창 (button, input)</h3>
+            <p>사용자가 아이디를 치거나 클릭할 때 쓰는 상호작용 태그입니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>&lt;input type="text" placeholder="이름 입력"&gt;
+&lt;button&gt;제출하기&lt;/button&gt;</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <div>
+                    <input type="text" placeholder="이름 입력" style="padding: 5px;">
+                    <button style="padding: 5px 10px;">제출하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>⑤ 시맨틱 태그 (header, main, footer)</h3>
+            <p>의미 없는 <code>&lt;div&gt;</code> 대신 역할에 맞는 태그를 쓰면 코드 읽기가 훨씬 쉬워집니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>&lt;header&gt;머리글 (로고, 메뉴)&lt;/header&gt;
+&lt;main&gt;핵심 본문 내용&lt;/main&gt;
+&lt;footer&gt;바닥글 (저작권)&lt;/footer&gt;</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과 (구조화된 모습)</div>
+                <div class="semantic-demo">
+                    <header>머리글 (로고, 메뉴)</header>
+                    <main>핵심 본문 내용</main>
+                    <footer>바닥글 (저작권)</footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. CSS 섹션 (추가 및 심화)
+         ========================================== -->
+    <h2 class="section-title">🎨 2. CSS: 웹페이지의 디자인</h2>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>① 기본 색상 변경 (color, background)</h3>
+            <p>원하는 태그를 선택해 글자색과 배경색을 지정합니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>p {
+  color: blue;
+  background-color: yellow;
+}</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <p style="color: blue; background-color: yellow; padding: 5px; margin: 0; font-weight: bold;">파란색 글씨, 노란색 배경</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>② 화려한 리스트 만들기</h3>
+            <p>HTML의 기본 <code>&lt;ul&gt;</code> 태그에 CSS 그라데이션과 그림자 효과를 입히면 훨씬 다채롭게 변합니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>.fancy-list li {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <ul class="fancy-list">
+                    <li>사과 (디자인 적용)</li>
+                    <li>바나나 (디자인 적용)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>③ 애니메이션 버튼 (Hover & Transition)</h3>
+            <p><code>:hover</code>를 쓰면 마우스를 올렸을 때 동작을 지정할 수 있고, <code>transition</code>으로 변화를 부드럽게 만듭니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>.hover-btn {
+  background-color: #9b59b6;
+  transition: all 0.3s ease;
+}
+.hover-btn:hover {
+  background-color: #8e44ad;
+  transform: translateY(-5px) scale(1.05);
+}</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <button class="hover-btn">나에게 마우스를 올려봐! 🎈</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>④ 마법의 배치 기술 (Flexbox)</h3>
+            <p><code>display: flex;</code>를 부모에게 주면, 안에 있는 박스들이 알아서 예쁘게 옆으로 나열됩니다. 레이아웃의 핵심 기술입니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>.flex-container {
+  display: flex;
+  gap: 15px; /* 박스 사이 간격 */
+}
+.flex-box {
+  flex: 1; /* 똑같은 비율로 공간 차지 */
+}</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <div class="flex-container">
+                    <div class="flex-box">박스 1</div>
+                    <div class="flex-box">박스 2</div>
+                    <div class="flex-box">박스 3</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         3. JS 섹션 (추가 및 심화)
+         ========================================== -->
+    <h2 class="section-title">⚙️ 3. JavaScript: 웹페이지의 동작</h2>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>① 클릭 이벤트 (기본 알림창)</h3>
+            <p>버튼을 클릭했을 때 알림창(alert)을 띄우는 가장 기본적인 자바스크립트입니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>let btn = document.querySelector('#alertBtn');
+btn.addEventListener('click', function() {
+  alert('버튼을 눌렀네요!');
+});</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <button id="alertBtn" style="padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">날 눌러봐요!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>② 실시간 숫자 카운터</h3>
+            <p>변수에 숫자를 저장하고, 클릭할 때마다 화면의 숫자를 더하거나 빼서 즉시 바꿔줍니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>let count = 0;
+document.querySelector('#plus').addEventListener('click', function() {
+  count = count + 1;
+  document.querySelector('#number').textContent = count;
+});</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <div style="text-align: center;">
+                    <h1 id="number" style="font-size: 40px; margin: 10px 0;">0</h1>
+                    <button id="minus" class="counter-btn">➖ 빼기</button>
+                    <button id="plus" class="counter-btn">➕ 더하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="explanation">
+            <h3>③ 다크모드 스위치 (Class Toggle)</h3>
+            <p><code>classList.toggle()</code>을 사용하면 HTML 태그에 특정 디자인(클래스)을 껐다 켰다 할 수 있습니다.</p>
+        </div>
+        <div class="demo-container">
+            <div class="code-box">
+                <div class="box-title">💻 예시 코드</div>
+<pre><code>const box = document.querySelector('#themeBox');
+const toggleBtn = document.querySelector('#toggleBtn');
+
+toggleBtn.addEventListener('click', function() {
+  box.classList.toggle('dark'); 
+});</code></pre>
+            </div>
+            <div class="result-box">
+                <div class="box-title">🖥️ 화면 결과</div>
+                <div id="themeBox" class="theme-box">
+                    <h3 style="margin-top:0;">다크모드 테스트</h3>
+                    <p>버튼을 누르면 반전됩니다.</p>
+                    <button id="toggleBtn" style="padding: 8px 15px; cursor: pointer;">테마 바꾸기 🌗</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 모음 -->
+    <script>
+        // 1. 기본 Alert
+        document.getElementById('alertBtn').addEventListener('click', function() {
+            alert('버튼을 눌렀네요! 웹페이지가 반응합니다 🎉');
+        });
+
+        // 2. 카운터 기능
+        let currentCount = 0;
+        const numDisplay = document.getElementById('number');
+        
+        document.getElementById('plus').addEventListener('click', function() {
+            currentCount++;
+            numDisplay.textContent = currentCount;
+            numDisplay.style.color = "#27ae60"; // 초록색
+        });
+        document.getElementById('minus').addEventListener('click', function() {
+            currentCount--;
+            numDisplay.textContent = currentCount;
+            numDisplay.style.color = "#c0392b"; // 빨간색
+        });
+
+        // 3. 다크모드 토글
+        const themeBox = document.getElementById('themeBox');
+        document.getElementById('toggleBtn').addEventListener('click', function() {
+            themeBox.classList.toggle('dark');
+            if(themeBox.classList.contains('dark')) {
+                this.textContent = "라이트모드 ☀️";
+            } else {
+                this.textContent = "다크모드 🌗";
+            }
+        });
+    </script>
+
+</body>
+</html>

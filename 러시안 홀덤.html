@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>러시안 홀덤</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+        body { font-family: 'Malgun Gothic', sans-serif; background: radial-gradient(circle at center, #1a0b0b 0%, #000000 100%); color: white; text-align: center; margin: 0; padding: 10px; user-select: none; overflow-x: hidden; transition: background 1s ease; }
+        h2 { color: #ffd700; margin-bottom: 10px; font-family: 'Playfair Display', serif; font-size: 2.5rem; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); z-index: 10; position: relative; }
+        
+        .table-container { position: relative; max-width: 950px; margin: 0 auto; perspective: 1200px; }
+        .table { background: radial-gradient(ellipse at center, #0f5c33 0%, #062b16 100%); border-radius: 150px; border: 30px solid #1c0e09; padding: 40px 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.9), inset 0 0 10px rgba(255,255,255,0.1); position: relative; transition: all 1s ease; z-index: 1; overflow: hidden; }
+        .table.execution-mode { filter: brightness(0.4) sepia(0.5) hue-rotate(-30deg); box-shadow: inset 0 0 150px #000; }
+
+        .avatar-wrap { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 5; pointer-events: none; }
+        .ai-wrap { top: -20px; }
+        .player-wrap { bottom: -20px; }
+        .shoulders { width: 140px; height: 60px; border-radius: 70px; background: #222; border: 2px solid #000; box-shadow: 0 10px 20px rgba(0,0,0,0.6); position: relative; z-index: 1; }
+        .head { width: 70px; height: 70px; border-radius: 50%; background: #e0ac69; border: 2px solid #c28e4a; box-shadow: inset 0 -10px 10px rgba(0,0,0,0.3); position: absolute; top: -15px; z-index: 2; }
+        .ai-wrap .shoulders { background: #3a1c1c; }
+        
+        .hands-container { display: flex; justify-content: space-between; width: 180px; position: absolute; top: 40px; }
+        .player-wrap .hands-container { top: -20px; }
+        .hand { width: 35px; height: 50px; border-radius: 20px; background: #e0ac69; border: 2px solid #c28e4a; box-shadow: 0 5px 10px rgba(0,0,0,0.5); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .ai-wrap .hand.acting { transform: translateY(40px) scale(1.1); }
+        .player-wrap .hand.acting { transform: translateY(-40px) scale(1.1); }
+
+        .cards-area { display: flex; justify-content: center; gap: 15px; margin: 5px 0; min-height: 105px; z-index: 10; position: relative; }
+        .card { background: #fff; border-radius: 8px; width: 75px; height: 105px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; box-shadow: 3px 5px 15px rgba(0,0,0,0.6); border: 1px solid #ccc; animation: dealCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateY(-50px) rotateY(180deg) scale(0.5); }
+        @keyframes dealCard { to { opacity: 1; transform: translateY(0) rotateY(0deg) scale(1); } }
+        .card.hidden { background: repeating-linear-gradient(45deg, #7b1313, #7b1313 10px, #9b1919 10px, #9b1919 20px); border: 2px solid #fff; color: transparent; box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 3px 5px 15px rgba(0,0,0,0.6); }
+        .red { color: #d32f2f; } .black { color: #111; }
+        
+        .info-panel { padding: 15px; border-radius: 15px; margin-bottom: 5px; position: relative; z-index: 10; }
+        
+        /* 칩 강조 스타일 */
+        .chip-display { font-family: 'Russo One', sans-serif; font-size: 1.8rem; color: #ffd700; text-shadow: 0 2px 5px #000; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px; border: 2px solid #554a10; display: inline-block; margin-bottom: 5px; }
+        
+        .pot-area { font-size: 35px; font-family: 'Russo One', sans-serif; color: #ffd700; margin: 10px 0; text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 5px 5px #000; background: rgba(0,0,0,0.7); display: inline-block; padding: 10px 40px; border-radius: 50px; border: 2px solid #554a10; z-index: 10; position: relative; }
+        .status-msg { font-size: 1.3rem; color: #4fc3f7; font-weight: bold; height: 30px; margin-bottom: 15px; text-shadow: 0 2px 4px #000; position: relative; z-index: 10; }
+        
+        .controls { margin-top: 20px; display: none; position: relative; z-index: 10; }
+        button { padding: 12px 25px; font-size: 18px; margin: 0 8px; cursor: pointer; background: linear-gradient(180deg, #444, #222); color: white; border: 2px solid #111; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2); transition: all 0.1s; }
+        button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        #btn-call { background: linear-gradient(180deg, #1976d2, #0d47a1); border-color: #0d47a1; } #btn-raise { background: linear-gradient(180deg, #f57c00, #e65100); border-color: #e65100; } #btn-fold { background: linear-gradient(180deg, #d32f2f, #b71c1c); border-color: #b71c1c; }
+        #btn-next { background: linear-gradient(180deg, #388e3c, #1b5e20); border-color: #1b5e20; padding: 20px 50px; font-size: 22px; margin-top: 20px; display: inline-block; border-radius: 50px; text-transform: uppercase; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(56, 142, 60, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(56, 142, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(56, 142, 60, 0); } }
+        input[type="number"] { padding: 12px; font-size: 18px; width: 120px; border-radius: 8px; border: 2px solid #555; background: #222; color: #ffd700; text-align: center; font-family: 'Russo One', sans-serif; vertical-align: top; }
+        
+        .action-popup { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: 'Russo One', sans-serif; font-size: 3.5rem; font-weight: 900; text-transform: uppercase; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 30px currentColor; pointer-events: none; z-index: 100; animation: popAction 1.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; }
+        @keyframes popAction { 0% { opacity: 0; transform: translate(-50%, -10px) scale(0.3); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(0.8); } }
+
+        #log { background: rgba(0,0,0,0.85); color: #ddd; height: 160px; overflow-y: auto; text-align: left; padding: 15px; border-radius: 10px; margin-top: 30px; font-family: monospace; max-width: 950px; margin-left: auto; margin-right: auto; border: 2px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative; z-index: 10;}
+        .log-ai { color: #ff9800; } .log-player { color: #29b6f6; } .log-sys { color: #81c784; } .log-death { color: #d32f2f; font-weight: bold; }
+
+        /* 베팅 칩 애니메이션 */
+        .moving-chip { position: fixed; width: 35px; height: 35px; background: radial-gradient(circle, #ffd700, #b8860b); border: 4px dashed #fff; border-radius: 50%; box-shadow: 0 5px 10px rgba(0,0,0,0.5); z-index: 1000; transition: all 0.5s ease-out; pointer-events: none; }
+
+        /* 처형 모드 UI */
+        .gun-wrapper { display: none; position: absolute; left: 50%; top: 50%; width: 60px; height: 180px; margin-left: -30px; margin-top: -90px; z-index: 50; transition: transform 1s ease; pointer-events: none; }
+        .gun-body { width: 30px; height: 120px; background: linear-gradient(90deg, #444, #777, #444); position: absolute; bottom: 0; left: 15px; border-radius: 5px; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
+        .gun-barrel { width: 14px; height: 90px; background: linear-gradient(90deg, #222, #555, #222); position: absolute; bottom: 110px; left: 23px; border-radius: 3px; border-top: 3px solid #111; }
+        .gun-cylinder { width: 40px; height: 35px; background: #333; position: absolute; bottom: 65px; left: 10px; border-radius: 8px; box-shadow: inset 0 0 10px #000; }
+        
+        .gun-recoil { animation: recoilAnim 0.15s ease-out; }
+        @keyframes recoilAnim { 0% { transform: translateY(0); } 30% { transform: translateY(40px); } 100% { transform: translateY(0); } }
+        
+        .blood-splatter { display: none; position: absolute; width: 300px; height: 300px; left: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle, #8a0303 0%, rgba(138,3,3,0.8) 40%, transparent 70%); z-index: 6; opacity: 0; mix-blend-mode: multiply; border-radius: 50%; pointer-events: none; }
+        .splatter-anim { display: block; animation: splatter 3s forwards; }
+        @keyframes splatter { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.1); } 10% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.3); } }
+
+        #execution-ui { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        .execution-title { font-family: 'Russo One', sans-serif; font-size: 5rem; color: #d32f2f; text-shadow: 0 0 30px red, 0 0 10px #000; margin-bottom: 10px; letter-spacing: 5px; animation: heartbeat 1s infinite alternate; }
+        @keyframes heartbeat { from { transform: scale(1); } to { transform: scale(1.05); } }
+        .cylinder-display { display: flex; gap: 15px; margin: 30px 0; }
+        .chamber { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #777; background: #222; box-shadow: 0 5px 10px #000;}
+        .chamber.spent { background: #550000; border-color: #d32f2f; position: relative; }
+        .chamber.spent::after { content: 'X'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d32f2f; font-weight: bold; font-size: 1.5rem; }
+        .prob-text { font-size: 2.5rem; color: #fff; margin-bottom: 40px; text-shadow: 0 2px 5px #000; }
+        #btn-trigger { pointer-events: auto; background: #d32f2f; border: 3px solid #ff0000; padding: 20px 80px; font-size: 2.5rem; box-shadow: 0 0 30px rgba(255,0,0,0.8); cursor: crosshair; border-radius: 15px; }
+        #btn-trigger:hover { filter: brightness(1.5); box-shadow: 0 0 60px rgba(255,0,0,1); transform: scale(1.05); }
+
+        .red-flash { animation: flashRed 1.5s forwards; }
+        @keyframes flashRed { 0% { background-color: #ff0000; filter: contrast(200%) brightness(200%); } 100% { background-color: #000000; filter: contrast(100%) brightness(100%); } }
+    </style>
+</head>
+<body>
+
+<h2>러시안 홀덤</h2>
+
+<div class="table-container">
+    <div class="table" id="game-table">
+        
+        <div class="avatar-wrap ai-wrap" id="ai-avatar">
+            <div class="hands-container">
+                <div class="hand left-hand" id="ai-hand-l"></div>
+                <div class="hand right-hand" id="ai-hand-r"></div>
+            </div>
+            <div class="shoulders">
+                <div class="head"></div>
+            </div>
+        </div>
+
+        <div class="info-panel" id="ai-panel">
+            <h3 style="margin:0 0 5px 0; color:#ff9800; font-size:1.5rem;">🤖 AI Bot</h3>
+            <div class="chip-display">Chips: $<span id="ai-chips">500</span></div>
+            <div style="color: #bbb; font-size: 1rem; font-weight: bold;">Bet: $<span id="ai-bet">0</span></div>
+            <div class="cards-area" id="ai-cards"></div>
+        </div>
+
+        <div class="pot-area" id="pot-display">POT: $<span id="pot">0</span></div>
+        <div class="status-msg" id="status-msg">아래 게임 시작 버튼을 눌러 카지노에 입장하세요.</div>
+
+        <div class="info-panel" style="background: transparent; border:none; box-shadow:none; padding:0;">
+            <div class="cards-area" id="community-cards"></div>
+        </div>
+
+        <div class="info-panel" id="player-panel">
+            <div class="cards-area" id="player-cards"></div>
+            <div style="color: #bbb; font-size: 1rem; font-weight: bold;">Bet: $<span id="player-bet">0</span></div>
+            <div class="chip-display">Chips: $<span id="player-chips">500</span></div>
+            <h3 style="margin:5px 0 0 0; color:#29b6f6; font-size:1.5rem;">🧑 Player</h3>
+        </div>
+
+        <div class="avatar-wrap player-wrap" id="player-avatar">
+            <div class="shoulders">
+                <div class="head"></div>
+            </div>
+            <div class="hands-container">
+                <div class="hand left-hand" id="player-hand-l"></div>
+                <div class="hand right-hand" id="player-hand-r"></div>
+            </div>
+        </div>
+
+        <!-- 처형 도구 -->
+        <div class="gun-wrapper" id="gun-visual">
+            <div class="gun-barrel"></div>
+            <div class="gun-cylinder"></div>
+            <div class="gun-body"></div>
+        </div>
+        
+        <div class="blood-splatter top" id="blood-ai" style="top: 10%;"></div>
+        <div class="blood-splatter bottom" id="blood-player" style="top: 90%;"></div>
+
+        <div class="controls" id="controls">
+            <button id="btn-fold" onclick="playerAction('fold')">FOLD</button>
+            <button id="btn-call" onclick="playerAction('call')">CHECK/CALL</button>
+            <input type="number" id="raise-amount" value="50" step="10">
+            <button id="btn-raise" onclick="playerAction('raise')">RAISE</button>
+        </div>
+        
+        <button id="btn-next" onclick="startHand()">게임 시작</button>
+    </div>
+</div>
+
+<div id="log"></div>
+
+<div id="execution-ui">
+    <div class="execution-title">EXECUTION</div>
+    <div style="color: #ddd; font-size: 1.5rem; font-weight:bold; margin-bottom: 20px;" id="exec-target-msg">패자를 향해 총구가 돌아갑니다.</div>
+    <div class="cylinder-display" id="cylinder-ui"></div>
+    <div class="prob-text" id="prob-ui">사형 확률: 16.7% (1/6)</div>
+    <button id="btn-trigger" onclick="pullTrigger()">격발 (PULL TRIGGER)</button>
+</div>
+
+<script>
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    
+    function playTone(freq, type, duration, vol, delay=0) {
+        if (!audioCtx) return;
+        setTimeout(() => {
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }, delay);
+    }
+    
+    function sfxRealisticGunshot() {
+        if (!audioCtx) return;
+        const time = audioCtx.currentTime;
+        const bufferSize = audioCtx.sampleRate * 2.0; 
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; } 
+        
+        const noiseSource = audioCtx.createBufferSource();
+        noiseSource.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1000, time);
+        filter.frequency.exponentialRampToValueAtTime(100, time + 0.5); 
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(1.5, time);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+        noiseSource.connect(filter); filter.connect(gainNode); gainNode.connect(audioCtx.destination);
+        noiseSource.start(time);
+
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(120, time); 
+        osc.frequency.exponentialRampToValueAtTime(30, time + 0.4);
+        const oscGain = audioCtx.createGain();
+        oscGain.gain.setValueAtTime(1.5, time);
+        oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+        osc.connect(oscGain); oscGain.connect(audioCtx.destination);
+        osc.start(time); osc.stop(time + 0.5);
+    }
+
+    function sfxBlankClick() { 
+        if (!audioCtx) return;
+        let time = audioCtx.currentTime;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(3000, time);
+        osc.frequency.exponentialRampToValueAtTime(100, time + 0.05);
+        gain.gain.setValueAtTime(1, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(time); osc.stop(time + 0.05);
+    } 
+
+    function sfxCard() { playTone(300, 'triangle', 0.1, 0.2); }
+    function sfxChip(times = 1) { for(let i=0; i<times; i++) { playTone(1800 + (Math.random()*400), 'sine', 0.05, 0.3, i * 60); playTone(2500 + (Math.random()*400), 'sine', 0.05, 0.1, i * 60 + 20); } }
+    function sfxCheck() { playTone(150, 'square', 0.05, 0.5); playTone(150, 'square', 0.05, 0.5, 100); }
+    function sfxFold() { playTone(100, 'sawtooth', 0.3, 0.3); }
+    function sfxWin() { playTone(523.25, 'sine', 0.15, 0.3); playTone(659.25, 'sine', 0.15, 0.3, 150); playTone(783.99, 'sine', 0.4, 0.3, 300); }
+    function sfxLose() { playTone(300, 'sawtooth', 0.3, 0.3); playTone(250, 'sawtooth', 0.3, 0.3, 200); playTone(200, 'sawtooth', 0.5, 0.3, 400); }
+    
+    function spawnChipAnim(who) {
+        let avatar = document.getElementById(who + '-avatar');
+        let pot = document.getElementById('pot-display');
+        if(!avatar || !pot) return;
+        
+        let src = avatar.getBoundingClientRect();
+        let dest = pot.getBoundingClientRect();
+        
+        let chip = document.createElement('div');
+        chip.className = 'moving-chip';
+        chip.style.left = (src.left + src.width/2 - 17 + window.scrollX) + 'px';
+        chip.style.top = (src.top + src.height/2 - 17 + window.scrollY) + 'px';
+        document.body.appendChild(chip);
+        
+        setTimeout(() => {
+            chip.style.left = (dest.left + dest.width/2 - 17 + window.scrollX) + 'px';
+            chip.style.top = (dest.top + dest.height/2 - 17 + window.scrollY) + 'px';
+            chip.style.opacity = '0.3';
+            chip.style.transform = 'scale(0.5)';
+        }, 50);
+        
+        setTimeout(() => { chip.remove(); }, 550);
+    }
+
+    function animateHand(who) {
+        let handL = document.getElementById(`${who}-hand-l`);
+        let handR = document.getElementById(`${who}-hand-r`);
+        if(handL && handR) {
+            handL.classList.add('acting'); handR.classList.add('acting');
+            setTimeout(() => {
+                handL.classList.remove('acting'); handR.classList.remove('acting');
+            }, 300);
+        }
+    }
+
+    function spawnActionText(who, text, color) {
+        let panel = document.getElementById(who + '-panel'); let popup = document.createElement('div');
+        popup.className = 'action-popup'; popup.style.color = color; popup.innerText = text;
+        panel.appendChild(popup); setTimeout(() => popup.remove(), 1500);
+    }
+
+    const AI_PERSONALITIES = [
+        { name: 'Tight', fear: 80, bluff: 5, aggro: 20 },
+        { name: 'Loose', fear: 10, bluff: 20, aggro: 40 },
+        { name: 'Aggressive', fear: 20, bluff: 30, aggro: 80 },
+        { name: 'Passive', fear: 50, bluff: 5, aggro: 10 },
+        { name: 'Bluffer', fear: 10, bluff: 70, aggro: 60 },
+        { name: 'Calling Station', fear: 0, bluff: 10, aggro: 20 }
+    ];
+
+    let aiPersonality = { aggro: 50, bluff: 20, fear: 30, type: 'Normal' };
+    let playerStats = { totalHands: 0, raises: 0, folds: 0, raiseRate: 0, foldRate: 0 };
+
+    function initAI() {
+        let selected = AI_PERSONALITIES[Math.floor(Math.random() * AI_PERSONALITIES.length)];
+        aiPersonality.aggro = selected.aggro;
+        aiPersonality.bluff = selected.bluff;
+        aiPersonality.fear = selected.fear;
+        aiPersonality.type = selected.name;
+        // 성격은 플레이어가 알 수 없도록 숨김 처리
+    }
+
+    function recordPlayerAction(action) {
+        playerStats.totalHands++;
+        if (action === 'raise') playerStats.raises++;
+        if (action === 'fold') playerStats.folds++;
+        playerStats.raiseRate = playerStats.raises / playerStats.totalHands;
+        playerStats.foldRate = playerStats.folds / playerStats.totalHands;
+    }
+
+    const SUITS = [{s:'♠', c:'black'}, {s:'♥', c:'red'}, {s:'♦', c:'red'}, {s:'♣', c:'black'}];
+    const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+    let deck = [], playerHand = [], aiHand = [], communityCards = [];
+    let pChips = 500, aChips = 500, pot = 0;
+    let pBetThisRound = 0, aBetThisRound = 0, highestBet = 0;
+    let pActed = false, aActed = false;
+    let currentStage = 0, isShowdown = false, handInProgress = false;
+    let remainingChambers = 6; 
+    let currentLoser = null;
+
+    function log(msg, type='sys') { const d = document.getElementById('log'); d.innerHTML += `<div class="log-${type}">> ${msg}</div>`; d.scrollTop = d.scrollHeight; }
+
+    function createDeck() {
+        deck = [];
+        for (let r=0; r<RANKS.length; r++) for (let s of SUITS) deck.push({ rank: RANKS[r], val: r+2, suit: s.s, color: s.c });
+        for (let i=deck.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    }
+    function renderCard(card, hidden=false) { if (!card) return ''; if (hidden) return `<div class="card hidden"></div>`; return `<div class="card ${card.color}">${card.rank}${card.suit}</div>`; }
+    
+    function updateUI() {
+        document.getElementById('player-chips').innerText = pChips; document.getElementById('ai-chips').innerText = aChips;
+        document.getElementById('pot').innerText = pot; document.getElementById('player-bet').innerText = pBetThisRound; document.getElementById('ai-bet').innerText = aBetThisRound;
+        document.getElementById('player-cards').innerHTML = playerHand.map(c=>renderCard(c)).join('');
+        document.getElementById('ai-cards').innerHTML = aiHand.map(c=>renderCard(c, !isShowdown)).join('');
+        document.getElementById('community-cards').innerHTML = communityCards.map(c=>renderCard(c)).join('');
+        
+        let toCall = highestBet - pBetThisRound;
+        let callBtn = document.getElementById('btn-call');
+        callBtn.innerText = toCall > 0 ? `CALL ($${toCall})` : "CHECK";
+    }
+    function setStatus(msg) { document.getElementById('status-msg').innerText = msg; }
+    function toggleControls(active) {
+        document.getElementById('controls').style.display = active ? 'block' : 'none';
+        ['btn-fold', 'btn-call', 'btn-raise', 'raise-amount'].forEach(id => document.getElementById(id).disabled = !active);
+    }
+
+    function startHand() {
+        initAudio(); document.getElementById('btn-next').style.display = 'none'; document.getElementById('controls').style.display = 'block';
+        initAI(); 
+        createDeck(); playerHand = [deck.pop(), deck.pop()]; aiHand = [deck.pop(), deck.pop()]; communityCards = [];
+        pot = 0; currentStage = 0; isShowdown = false; handInProgress = true;
+        
+        animateHand('player'); animateHand('ai');
+        sfxCard(); log("=== NEW HAND ===", "sys");
+        
+        let blind = 10;
+        let pBlind = Math.min(pChips, blind); let aBlind = Math.min(aChips, blind);
+        pChips -= pBlind; pBetThisRound = pBlind; aChips -= aBlind; aBetThisRound = aBlind;
+        pot += (pBlind + aBlind); highestBet = blind;
+        spawnChipAnim('player'); spawnChipAnim('ai');
+
+        log(`블라인드 앤티 $${blind} 징수됨.`, "sys");
+        startStreet(true); 
+    }
+
+    function startStreet(isPreFlop = false) {
+        if (!isPreFlop) { pBetThisRound = 0; aBetThisRound = 0; highestBet = 0; }
+        pActed = false; aActed = false; updateUI(); gameLoop();
+    }
+    function dealCardsForNextStage() {
+        sfxCard();
+        if (currentStage === 0) communityCards.push(deck.pop(), deck.pop(), deck.pop());
+        else if (currentStage === 1 || currentStage === 2) communityCards.push(deck.pop());
+        currentStage++;
+    }
+
+    function gameLoop() {
+        if (!handInProgress) return;
+        updateUI();
+
+        let roundOver = false;
+        if (pActed && aActed) {
+            if (pBetThisRound === aBetThisRound || (pChips === 0 && aBetThisRound === highestBet) || (aChips === 0 && pBetThisRound === highestBet) || (pChips === 0 && aChips === 0)) roundOver = true;
+        }
+
+        if (roundOver) {
+            if (pBetThisRound > aBetThisRound && aChips === 0) { let excess = pBetThisRound - aBetThisRound; pChips += excess; pot -= excess; pBetThisRound -= excess; highestBet = pBetThisRound; } 
+            else if (aBetThisRound > pBetThisRound && pChips === 0) { let excess = aBetThisRound - pBetThisRound; aChips += excess; pot -= excess; aBetThisRound -= excess; highestBet = aBetThisRound; }
+            updateUI();
+
+            if (pChips === 0 || aChips === 0) {
+                if (!isShowdown) {
+                    isShowdown = true; log("🚨 올인! 카드 오픈!", "sys"); setStatus("ALL-IN! 남은 카드를 확인합니다...");
+                    toggleControls(false);
+                    let delay = 500; let stagesToDeal = 4 - currentStage;
+                    for(let i = 0; i < stagesToDeal; i++) { setTimeout(dealCardsForNextStage, delay); delay += 800; }
+                    setTimeout(() => { updateUI(); showdown(); }, delay + 500);
+                }
+            } else { setStatus("다음 라운드로 넘어갑니다..."); toggleControls(false); setTimeout(nextStageCards, 800); }
+            return;
+        }
+
+        if (!pActed || pBetThisRound < highestBet) {
+            if (pChips === 0) { pActed = true; gameLoop(); } else { setStatus("👉 당신의 차례입니다 (Your Turn)"); toggleControls(true); }
+        } else if (!aActed || aBetThisRound < highestBet) { 
+            if (aChips === 0) { aActed = true; gameLoop(); } else { setStatus("🤖 AI가 고민 중입니다..."); toggleControls(false); setTimeout(aiTurn, 1200); }
+        }
+    }
+
+    function executeBet(who, amount) {
+        let actual = Math.min(amount, who === 'player' ? pChips : aChips);
+        if(actual > 0) spawnChipAnim(who);
+        
+        if(who === 'player') { pChips -= actual; pBetThisRound += actual; pot += actual; if(pBetThisRound > highestBet) highestBet = pBetThisRound; } 
+        else { aChips -= actual; aBetThisRound += actual; pot += actual; if(aBetThisRound > highestBet) highestBet = aBetThisRound; }
+    }
+
+    function playerAction(action) {
+        recordPlayerAction(action);
+        initAudio(); animateHand('player');
+        let toCall = highestBet - pBetThisRound;
+        
+        if (action === 'fold') { spawnActionText('player', 'FOLD', '#d32f2f'); sfxFold(); log("폴드했습니다.", "player"); endHand('ai'); return; }
+        else if (action === 'call') {
+            if (toCall > 0) { spawnActionText('player', 'CALL', '#29b6f6'); sfxChip(2); log(`$${Math.min(toCall, pChips)} 콜.`, "player"); executeBet('player', toCall); }
+            else { spawnActionText('player', 'CHECK', '#fff'); sfxCheck(); log("체크.", "player"); }
+            pActed = true;
+        } else if (action === 'raise') {
+            let raiseAmt = parseInt(document.getElementById('raise-amount').value);
+            if (isNaN(raiseAmt) || (raiseAmt < toCall + 10 && raiseAmt !== pChips)) return alert("최소 레이즈 금액을 확인해주세요!");
+            if (raiseAmt > pChips) raiseAmt = pChips; 
+            spawnActionText('player', 'RAISE', '#f57c00'); sfxChip(5); log(`$${raiseAmt} 레이즈!`, "player"); executeBet('player', raiseAmt);
+            pActed = true; aActed = false; 
+        }
+        toggleControls(false); gameLoop();
+    }
+
+    function evaluateHandStrength(cards) { 
+        if(cards.length === 2) { 
+            let v1 = cards[0].val, v2 = cards[1].val;
+            let high = Math.max(v1, v2), low = Math.min(v1, v2);
+            let score = (high * 2 + low) / 42 * 35;
+            if(v1 === v2) score += 35;
+            if(cards[0].suit === cards[1].suit) score += 15;
+            if(high - low === 1) score += 15;
+            return Math.min(100, score);
+        } 
+        
+        let res = evaluateHand(cards); 
+        let baseScores = [10, 30, 50, 70, 80, 85, 90, 95, 98, 100];
+        let score = baseScores[res[0]];
+        score += (res[1] / 14) * (res[0] === 0 ? 15 : 8); 
+        return Math.min(100, score); 
+    }
+
+    function aiTurn() {
+        if (!handInProgress) return;
+        animateHand('ai');
+        
+        let toCall = highestBet - aBetThisRound; 
+        let allCards = aiHand.concat(communityCards);
+        
+        let myHandScore = evaluateHandStrength(allCards); 
+
+        let boardScore = communityCards.length >= 3 ? evaluateHandStrength(communityCards) : 0;
+        if (communityCards.length >= 3 && myHandScore <= boardScore + 2) {
+            myHandScore *= 0.6; 
+        }
+
+        let potOdds = toCall > 0 ? toCall / (pot + toCall) : 0;
+        let betPressure = potOdds * 100; 
+        let stackRatio = aChips / (pChips > 0 ? pChips : 1);
+        let stackBonus = stackRatio > 1.5 ? 10 : (stackRatio < 0.5 ? -10 : 0); 
+
+        let fearPenalty = 0;
+        if (pot > (aChips + pChips) * 0.3) fearPenalty = aiPersonality.fear * 0.2; 
+
+        let adaptBonus = 0;
+        if (playerStats.raiseRate > 0.4) adaptBonus += 10; 
+        if (playerStats.foldRate > 0.5) aiPersonality.bluff += 5; 
+
+        let totalScore = myHandScore - betPressure + stackBonus - fearPenalty + adaptBonus;
+        
+        let weights = { fold: 0, check: 0, call: 0, raise: 0 };
+        if (toCall === 0) { 
+            if (totalScore >= 80) weights = { check: 20, raise: 80 };
+            else if (totalScore >= 50) weights = { check: 70, raise: 30 };
+            else weights = { check: 90, raise: 10 };
+        } else { 
+            if (totalScore >= 85) weights = { fold: 0, call: 30, raise: 70 };
+            else if (totalScore >= 65) weights = { fold: 5, call: 70, raise: 25 };
+            else if (totalScore >= 40) weights = { fold: 45, call: 50, raise: 5 };
+            else weights = { fold: 85, call: 15, raise: 0 };
+        }
+
+        // [신규 추가] 성격 시스템 기반 베팅 30% 영향력 주입
+        let traitWeights = { fold: 0, check: 0, call: 0, raise: 0 };
+        let pType = aiPersonality.type;
+        
+        if (toCall === 0) {
+            if (pType === 'Tight') traitWeights = { check: 90, raise: 10 }; 
+            else if (pType === 'Loose') traitWeights = { check: 50, raise: 50 }; 
+            else if (pType === 'Aggressive') traitWeights = { check: 10, raise: 90 }; 
+            else if (pType === 'Passive') traitWeights = { check: 100, raise: 0 }; 
+            else if (pType === 'Bluffer') traitWeights = { check: 30, raise: 70 }; 
+            else if (pType === 'Calling Station') traitWeights = { check: 100, raise: 0 };
+        } else {
+            if (pType === 'Tight') traitWeights = { fold: 85, call: 10, raise: 5 }; 
+            else if (pType === 'Loose') traitWeights = { fold: 10, call: 70, raise: 20 };
+            else if (pType === 'Aggressive') traitWeights = { fold: 5, call: 25, raise: 70 }; 
+            else if (pType === 'Passive') traitWeights = { fold: 30, call: 70, raise: 0 }; 
+            else if (pType === 'Bluffer') traitWeights = { fold: 30, call: 20, raise: 50 };
+            else if (pType === 'Calling Station') traitWeights = { fold: 0, call: 100, raise: 0 }; 
+        }
+
+        // 70%는 기존 상황별 논리 점수 기반, 30%는 성격 강제 부여로 혼합
+        for (let action in weights) {
+            weights[action] = (weights[action] * 0.7) + (traitWeights[action] * 0.3);
+        }
+
+        let isBluffing = false;
+        if (totalScore < 45 && (Math.random() * 100) < aiPersonality.bluff) {
+            isBluffing = true;
+            if (toCall === 0) weights = { check: 10, raise: 90 };
+            else weights = { fold: 10, call: 20, raise: 70 };
+        }
+
+        let rand = Math.random() * 100;
+        let decision = 'fold'; 
+        let cumulative = 0;
+        let totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+        
+        for (let [action, weight] of Object.entries(weights)) {
+            cumulative += (weight / totalWeight) * 100;
+            if (rand <= cumulative) { decision = action; break; }
+        }
+
+        if (decision === 'fold') { 
+            spawnActionText('ai', 'FOLD', '#d32f2f'); sfxFold(); log("AI가 폴드했습니다.", "ai"); endHand('player'); return; 
+        }
+        else if (decision === 'check' || (decision === 'call' && toCall === 0)) { 
+            spawnActionText('ai', 'CHECK', '#fff'); sfxCheck(); log("AI: 체크.", "ai"); aActed = true; 
+        }
+        else if (decision === 'call') { 
+            spawnActionText('ai', 'CALL', '#29b6f6'); sfxChip(2); log(`AI: $${Math.min(toCall, aChips)} 콜.`, "ai"); executeBet('ai', toCall); aActed = true; 
+        }
+        else if (decision === 'raise') {
+            let potPercent = 0;
+            if (isBluffing) potPercent = (80 + Math.floor(Math.random() * 70)) / 100;
+            else if (totalScore >= 80) potPercent = (40 + Math.floor(Math.random() * 80)) / 100;
+            else potPercent = (30 + Math.floor(Math.random() * 20)) / 100;
+            
+            let raiseAmt = toCall + Math.floor(pot * potPercent);
+            raiseAmt = Math.max(raiseAmt, 20); 
+            
+            let actualRaise = Math.min(raiseAmt, aChips);
+            if (actualRaise <= toCall) { 
+                spawnActionText('ai', 'CALL', '#29b6f6'); sfxChip(2); 
+                log(`AI: $${actualRaise} 콜 (올인).`, "ai"); 
+                executeBet('ai', actualRaise); aActed = true; 
+            } else { 
+                spawnActionText('ai', 'RAISE', '#f57c00'); sfxChip(5); 
+                log(`AI: $${actualRaise} 레이즈!`, "ai"); 
+                executeBet('ai', actualRaise); aActed = true; pActed = false; 
+            }
+        }
+        gameLoop();
+    }
+
+    function evaluateHand(cards) {
+        let rCount = {}, sCount = {}, suitsCards = { '♠':[], '♥':[], '♦':[], '♣':[] };
+        cards.forEach(c => { 
+            rCount[c.val] = (rCount[c.val]||0)+1; 
+            sCount[c.suit] = (sCount[c.suit]||0)+1; 
+            suitsCards[c.suit].push(c.val);
+        });
+        
+        let vals = Array.from(new Set(cards.map(c=>c.val))).sort((a,b)=>b-a); 
+        let allVals = cards.map(c=>c.val).sort((a,b)=>b-a);
+        
+        let checkStraight = (vArr) => {
+            let cons = 1, maxS = 0;
+            for(let i=0; i<vArr.length-1; i++) {
+                if (vArr[i] - 1 === vArr[i+1]) { 
+                    cons++; 
+                    if(cons === 5) { maxS = vArr[i-3]; break; }
+                } else { cons = 1; }
+            }
+            if (maxS === 0 && vArr.includes(14) && vArr.includes(5) && vArr.includes(4) && vArr.includes(3) && vArr.includes(2)) maxS = 5; 
+            return maxS;
+        };
+
+        let flushSuit = Object.keys(sCount).find(key => sCount[key] >= 5);
+        let isFlush = flushSuit != null;
+        let straightMax = checkStraight(vals);
+        let isStraight = straightMax > 0;
+        
+        let straightFlushMax = 0;
+        if (isFlush) straightFlushMax = checkStraight(suitsCards[flushSuit].sort((a,b)=>b-a));
+
+        let pairs=[], threes=[], fours=[], maxR=0;
+        for (let [v, c] of Object.entries(rCount)) { 
+            let val = parseInt(v); if (val > maxR) maxR = val; 
+            if (c===2) pairs.push(val); if(c===3) threes.push(val); if(c===4) fours.push(val); 
+        }
+        pairs.sort((a,b)=>b-a); threes.sort((a,b)=>b-a);
+        let isFullHouse = (threes.length > 0 && pairs.length > 0) || (threes.length > 1);
+
+        if (straightFlushMax === 14) return [9, 14, "👑 로열 스트레이트 플러쉬", allVals];
+        if (straightFlushMax > 0) {
+            if (straightFlushMax === 5) return [8, 5, "백스트레이트 플러쉬", allVals];
+            return [8, straightFlushMax, "스트레이트 플러쉬", allVals];
+        }
+        if (fours.length > 0) return [7, fours[0], "포카드", allVals]; 
+        if (isFullHouse) return [6, threes[0], "풀하우스", allVals];
+        if (isFlush) return [5, Math.max(...suitsCards[flushSuit]), "플러쉬", allVals]; 
+        if (isStraight) {
+            if (straightMax === 14) return [4, 14, "⛰️ 마운틴", allVals];
+            if (straightMax === 5) return [4, 5, "백스트레이트", allVals];
+            return [4, straightMax, "스트레이트", allVals];
+        }
+        if (threes.length > 0) return [3, threes[0], "트리플", allVals]; 
+        if (pairs.length >= 2) return [2, pairs[0], "투페어", allVals]; 
+        if (pairs.length === 1) return [1, pairs[0], "원페어", allVals]; 
+        return [0, maxR, "하이카드", allVals];
+    }
+
+    function compareHands(pRes, aRes) {
+        if (pRes[0] !== aRes[0]) return pRes[0] - aRes[0];
+        if (pRes[1] !== aRes[1]) return pRes[1] - aRes[1];
+        for(let i=0; i<Math.min(pRes[3].length, aRes[3].length); i++) {
+             if (pRes[3][i] !== aRes[3][i]) return pRes[3][i] - aRes[3][i];
+        }
+        return 0; 
+    }
+
+    function nextStageCards() { dealCardsForNextStage(); log(`--- ${["PRE-FLOP", "FLOP", "TURN", "RIVER", "SHOWDOWN"][currentStage]} ---`, "sys"); if (currentStage >= 4) showdown(); else startStreet(false); }
+    
+    function showdown() {
+        isShowdown = true; toggleControls(false); updateUI(); setStatus("🏁 SHOWDOWN!"); log("=== 쇼다운 ===", "sys");
+        let pRes = evaluateHand(playerHand.concat(communityCards)); let 대Res = evaluateHand(aiHand.concat(communityCards));
+        log(`Player: ${pRes[2]}`, "player"); log(`AI: ${대Res[2]}`, "ai");
+        
+        let diff = compareHands(pRes, 대Res);
+        if (diff > 0) { spawnActionText('player', 'WINNER!', '#ffd700'); sfxWin(); log(`🎉 Player 승리! 팟 $${pot} 획득!`, "sys"); pChips += pot; } 
+        else if (diff < 0) { spawnActionText('ai', 'WINNER!', '#ffd700'); sfxLose(); log(`💀 AI 승리!`, "sys"); aChips += pot; } 
+        else { spawnActionText('player', 'DRAW', '#fff'); log(`🤝 무승부! (키커 동일) 팟 분할.`, "sys"); pChips += Math.floor(pot/2); aChips += Math.ceil(pot/2); }
+        finishHand();
+    }
+
+    function endHand(winner) {
+        toggleControls(false); updateUI();
+        if (winner === 'player') { spawnActionText('player', 'TAKE POT', '#ffd700'); sfxWin(); pChips += pot; } 
+        else { spawnActionText('ai', 'TAKE POT', '#ffd700'); sfxLose(); aChips += pot; }
+        finishHand();
+    }
+    
+    function finishHand() {
+        handInProgress = false; pot = 0; document.getElementById('controls').style.display = 'none'; updateUI();
+        if (pChips <= 0 || aChips <= 0) {
+            currentLoser = pChips <= 0 ? 'player' : 'ai';
+            log(`🚨 ${currentLoser === 'player' ? '플레이어' : 'AI'} 파산! 누적 처형 페이즈 진입!`, "log-death");
+            setTimeout(triggerExecutionPhase, 1500); return;
+        }
+        let btnNext = document.getElementById('btn-next'); btnNext.innerText = "다음 판 (NEXT HAND)"; btnNext.style.display = 'inline-block';
+    }
+
+    function triggerExecutionPhase() {
+        initAudio(); 
+        document.getElementById('game-table').classList.add('execution-mode');
+        document.getElementById('execution-ui').style.display = 'flex';
+        
+        let gun = document.getElementById('gun-visual');
+        gun.style.display = 'block';
+        if (currentLoser === 'player') {
+            gun.style.transform = "rotate(180deg)"; 
+            document.getElementById('exec-target-msg').innerText = "플레이어(당신)를 향해 총구가 겨눠집니다.";
+        } else {
+            gun.style.transform = "rotate(0deg)"; 
+            document.getElementById('exec-target-msg').innerText = "AI 봇을 향해 총구가 겨눠집니다.";
+        }
+
+        renderCylinder();
+        let deathProb = (1 / remainingChambers) * 100;
+        document.getElementById('prob-ui').innerText = `사형 확률: ${deathProb.toFixed(1)}% (1/${remainingChambers})`;
+        document.getElementById('btn-trigger').style.display = 'block';
+    }
+
+    function renderCylinder() {
+        let cylinderDiv = document.getElementById('cylinder-ui'); cylinderDiv.innerHTML = '';
+        let spent = 6 - remainingChambers;
+        for(let i = 0; i < 6; i++) {
+            let chamber = document.createElement('div'); chamber.className = 'chamber' + (i < spent ? ' spent' : '');
+            cylinderDiv.appendChild(chamber);
+        }
+    }
+
+    function pullTrigger() {
+        document.getElementById('btn-trigger').style.display = 'none';
+        let isLiveBullet = Math.random() < (1 / remainingChambers);
+        
+        let gunWrapper = document.getElementById('gun-visual');
+        gunWrapper.classList.remove('gun-recoil');
+        void gunWrapper.offsetWidth; 
+        gunWrapper.classList.add('gun-recoil');
+
+        if (isLiveBullet) {
+            sfxRealisticGunshot(); 
+            document.body.classList.add('red-flash');
+            
+            let blood = document.getElementById(`blood-${currentLoser}`);
+            blood.classList.add('splatter-anim');
+
+            log(`💥 실탄 폭발! ${currentLoser === 'player' ? '당신의 사망' : 'AI 봇 처형'}... 게임 오버.`, "log-death");
+            document.getElementById('exec-target-msg').innerText = "총성이 울려 퍼졌습니다. [ FATAL EXECUTION ]"; document.getElementById('exec-target-msg').style.color = "#ff0000";
+            document.getElementById('prob-ui').innerText = "";
+        } else {
+            sfxBlankClick();
+            log(`찰칵. 공탄입니다. ${currentLoser === 'player' ? '플레이어' : 'AI'} 극적 생존!`, "sys");
+            document.getElementById('exec-target-msg').innerText = "찰칵... 극적으로 생존했습니다. 테이블로 복귀합니다."; document.getElementById('exec-target-msg').style.color = "#4fc3f7";
+            remainingChambers -= 1; 
+            
+            setTimeout(() => {
+                pChips = 500; aChips = 500;
+                document.getElementById('execution-ui').style.display = 'none'; 
+                document.getElementById('game-table').classList.remove('execution-mode');
+                document.getElementById('gun-visual').style.display = 'none';
+                
+                let btnNext = document.getElementById('btn-next'); btnNext.innerText = "다음 판 (NEXT HAND)"; btnNext.style.display = 'inline-block';
+                updateUI();
+            }, 3000);
+        }
+    }
+</script>
+
+</body>
+</html>
