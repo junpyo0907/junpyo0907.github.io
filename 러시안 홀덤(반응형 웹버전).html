@@ -148,7 +148,7 @@
 
         <div class="info-panel" id="ai-panel">
             <h3 style="margin:0 0 5px 0; color:#ff9800; font-size:1.3rem;">🤖 AI Bot</h3>
-            <div class="chip-display">Chips: $<span id="ai-chips">500</span></div>
+            <div class="chip-display">Chips: $<span id="ai-chips">300</span></div>
             <div style="color: #bbb; font-size: 0.9rem; font-weight: bold;">Bet: $<span id="ai-bet">0</span></div>
             <div class="cards-area" id="ai-cards"></div>
         </div>
@@ -163,7 +163,7 @@
         <div class="info-panel" id="player-panel">
             <div class="cards-area" id="player-cards"></div>
             <div style="color: #bbb; font-size: 0.9rem; font-weight: bold;">Bet: $<span id="player-bet">0</span></div>
-            <div class="chip-display">Chips: $<span id="player-chips">500</span></div>
+            <div class="chip-display">Chips: $<span id="player-chips">300</span></div>
             <h3 style="margin:5px 0 0 0; color:#29b6f6; font-size:1.3rem;">🧑 Player</h3>
         </div>
 
@@ -349,7 +349,7 @@
     const SUITS = [{s:'♠', c:'black'}, {s:'♥', c:'red'}, {s:'♦', c:'red'}, {s:'♣', c:'black'}];
     const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
     let deck = [], playerHand = [], aiHand = [], communityCards = [];
-    let pChips = 500, aChips = 500, pot = 0;
+    let pChips = 300, aChips = 300, pot = 0;
     let pBetThisRound = 0, aBetThisRound = 0, highestBet = 0;
     let pActed = false, aActed = false;
     let currentStage = 0, isShowdown = false, handInProgress = false;
@@ -757,7 +757,7 @@
             remainingChambers -= 1; 
             
             setTimeout(() => {
-                pChips = 500; aChips = 500;
+                pChips = 300; aChips = 300;
                 document.getElementById('execution-ui').style.display = 'none'; 
                 document.getElementById('game-table').classList.remove('execution-mode');
                 document.getElementById('gun-visual').style.display = 'none';
